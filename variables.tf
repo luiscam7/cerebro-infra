@@ -1,8 +1,18 @@
 # Input variable definitions
 
-variable "aws_region" {
-  description = "AWS region for all resources."
-
-  type    = string
-  default = "us-west-2"
+variable "region" {
+  description = "AWS region"
+  type        = string
+  default     = "us-west-2"
 }
+
+variable "bucket_name" {
+  description = "S3 bucket name"
+  type        = string
+}
+
+variable "lambda_function_name" {
+  description = "Lambda function name"
+  type        = string
+}
+
