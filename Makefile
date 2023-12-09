@@ -3,3 +3,9 @@ format:
 
 test:
 	terraform test
+
+validate:
+	terraform validate
+
+apply:
+	terraform apply
