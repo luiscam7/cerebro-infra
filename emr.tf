@@ -22,7 +22,7 @@ module "emr_serverless" {
     executor = {
       initial_capacity_type = "Executor"
       initial_capacity_config = {
-        worker_count = 2
+        worker_count = 1
         worker_configuration = {
           cpu    = "8 vCPU"
           disk   = "64 GB"
@@ -33,7 +33,7 @@ module "emr_serverless" {
   }
 
   maximum_capacity = {
-    cpu    = "48 vCPU"
+    cpu    = "16 vCPU"
     memory = "144 GB"
   }
 
