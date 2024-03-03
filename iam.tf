@@ -185,13 +185,16 @@ resource "aws_iam_policy" "emr_studio_user_policy" {
         "Sid" : "EMRServerlessInteractiveAccess",
         "Effect" : "Allow",
         "Action" : "emr-serverless:AccessInteractiveEndpoints",
-        "Resource": "*"
+        "Resource" : "*"
       },
       {
         "Sid" : "EMRServerlessRuntimeRoleAccess",
         "Effect" : "Allow",
         "Action" : "iam:PassRole",
-        "Resource" : "*",
+        "Resource" : [
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/EMRServerlessInteractiveExecutionRole",
+          "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/emr-studio-service-role"
+        ],
         "Condition" : {
           "StringLike" : {
             "iam:PassedToService" : "emr-serverless.amazonaws.com"
