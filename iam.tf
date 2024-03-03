@@ -191,7 +191,7 @@ resource "aws_iam_policy" "emr_studio_user_policy" {
         "Sid" : "EMRServerlessRuntimeRoleAccess",
         "Effect" : "Allow",
         "Action" : "iam:PassRole",
-        "Resource" : "${aws_iam_role.emr_serverless_interactive_execution_role.arn}",
+        "Resource" : "*",
         "Condition" : {
           "StringLike" : {
             "iam:PassedToService" : "emr-serverless.amazonaws.com"

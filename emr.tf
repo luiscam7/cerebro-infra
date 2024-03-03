@@ -11,7 +11,7 @@ module "emr_serverless" {
     driver = {
       initial_capacity_type = "Driver"
       initial_capacity_config = {
-        worker_count = 2
+        worker_count = 1
         worker_configuration = {
           cpu    = "4 vCPU"
           memory = "12 GB"
