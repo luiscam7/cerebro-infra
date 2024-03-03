@@ -7,5 +7,5 @@ test:
 validate:
 	terraform validate
 
-apply:
-	terraform apply
+deploy:
+	terraform apply --auto-approve

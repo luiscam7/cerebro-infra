@@ -28,6 +28,25 @@ resource "aws_iam_policy" "s3_sync_policy" {
   })
 }
 
+resource "aws_iam_role" "emr_serverless_interactive_execution_role" {
+  name = "EMRServerlessInteractiveExecutionRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "emr-serverless.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+
+
 resource "aws_iam_role" "emr_studio_service_role" {
   name = "emr-studio-service-role"
 
@@ -75,6 +94,7 @@ resource "aws_iam_policy" "emr_studio_s3_access" {
           "s3:PutObject",
           "s3:GetObject",
           "s3:ListBucket",
+          "s3:GetEncryptionConfiguration",
           "s3:DeleteObject"
         ],
         "Resource" : [
@@ -108,7 +128,7 @@ resource "aws_iam_role_policy_attachment" "emr_studio_s3_policy_attachment" {
 
 resource "aws_iam_policy" "emr_studio_user_policy" {
   name        = "EMRStudioUserPolicy"
-  description = "Provides access to EMR Studio features"
+  description = "Provides access to EMR Studio features and EMR Serverless applications"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -130,6 +150,18 @@ resource "aws_iam_policy" "emr_studio_user_policy" {
           "emr-containers:CreateAccessTokenForManagedEndpoint",
           "emr-containers:ListJobRuns",
           "emr-containers:DescribeJobRun",
+          // Add EMR Serverless permissions
+          "emr-serverless:StartJobRun",
+          "emr-serverless:GetJobRun",
+          "emr-serverless:ListJobRuns",
+          "emr-serverless:CancelJobRun",
+          "emr-serverless:CreateApplication",
+          "emr-serverless:GetApplication",
+          "emr-serverless:ListApplications",
+          "emr-serverless:DeleteApplication",
+          "emr-serverless:StartApplication",
+          "emr-serverless:StopApplication",
+          // Additional permissions for integration with other AWS services
           "servicecatalog:SearchProducts",
           "servicecatalog:DescribeProduct",
           "servicecatalog:DescribeProductView",
@@ -148,12 +180,61 @@ resource "aws_iam_policy" "emr_studio_user_policy" {
           "sso:GetManagedApplicationInstance"
         ],
         Resource = "*"
+      },
+      {
+        "Sid" : "EMRServerlessInteractiveAccess",
+        "Effect" : "Allow",
+        "Action" : "emr-serverless:AccessInteractiveEndpoints",
+        "Resource": "*"
+      },
+      {
+        "Sid" : "EMRServerlessRuntimeRoleAccess",
+        "Effect" : "Allow",
+        "Action" : "iam:PassRole",
+        "Resource" : "${aws_iam_role.emr_serverless_interactive_execution_role.arn}",
+        "Condition" : {
+          "StringLike" : {
+            "iam:PassedToService" : "emr-serverless.amazonaws.com"
+          }
+        }
       }
     ]
   })
 }
 
+
 resource "aws_iam_role_policy_attachment" "emr_studio_user_policy_attachment" {
   role       = aws_iam_role.emr_studio_service_role.name
   policy_arn = aws_iam_policy.emr_studio_user_policy.arn
 }
+
+
+
+
+resource "aws_iam_policy" "emr_serverless_s3_access" {
+  name        = "EMRServerlessS3Access"
+  description = "S3 access for EMR Serverless applications"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject"
+        ],
+        Resource = [
+          "arn:aws:s3:::cerebro-emr-studio-backup",
+          "arn:aws:s3:::cerebro-emr-studio-backup/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "emr_serverless_s3_access_attachment" {
+  role       = aws_iam_role.emr_serverless_interactive_execution_role.name
+  policy_arn = aws_iam_policy.emr_serverless_s3_access.arn
+}
+

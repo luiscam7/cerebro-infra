@@ -56,3 +56,22 @@ module "emr_serverless" {
     Name        = "Cerebro"
   }
 }
+
+
+// Create EMR Studio for interactive analysis
+
+module "emr_studio" {
+  source = "terraform-aws-modules/emr/aws//modules/studio"
+
+  name                = "emr-studio-iam"
+  auth_mode           = "IAM"
+  default_s3_location = "s3://${aws_s3_bucket.cerebro_emr_studio_backup.bucket}/test"
+
+  vpc_id     = aws_vpc.cerebro_vpc.id
+  subnet_ids = [aws_subnet.subnet1.id, aws_subnet.subnet2.id, aws_subnet.subnet3.id]
+
+  tags = {
+    Terraform   = "true"
+    Environment = "dev"
+  }
+}
