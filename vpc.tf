@@ -40,3 +40,46 @@ resource "aws_subnet" "subnet3" {
     Name = "subnet3"
   }
 }
+
+resource "aws_route_table" "cerebro_route_table" {
+  vpc_id = aws_vpc.cerebro_vpc.id
+
+  // Default route for internet access
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.cerebro_gw.id
+  }
+
+  // If IPv6 is enabled and needed
+  route {
+    ipv6_cidr_block = "::/0"
+    gateway_id      = aws_internet_gateway.cerebro_gw.id
+  }
+
+  tags = {
+    Name = "cerebro-route-table"
+  }
+}
+
+resource "aws_route_table_association" "subnet1_association" {
+  subnet_id      = aws_subnet.subnet1.id
+  route_table_id = aws_route_table.cerebro_route_table.id
+}
+
+resource "aws_route_table_association" "subnet2_association" {
+  subnet_id      = aws_subnet.subnet2.id
+  route_table_id = aws_route_table.cerebro_route_table.id
+}
+
+resource "aws_route_table_association" "subnet3_association" {
+  subnet_id      = aws_subnet.subnet3.id
+  route_table_id = aws_route_table.cerebro_route_table.id
+}
+
+resource "aws_internet_gateway" "cerebro_gw" {
+  vpc_id = aws_vpc.cerebro_vpc.id
+
+  tags = {
+    Name = "cerebro-gateway"
+  }
+}

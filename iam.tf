@@ -175,9 +175,10 @@ resource "aws_iam_policy" "emr_studio_user_policy" {
           "sso-directory:SearchUsers",
           "iam:GetUser",
           "iam:GetRole",
+          "iam:PassRole",
           "iam:ListUsers",
           "iam:ListRoles",
-          "sso:GetManagedApplicationInstance"
+          "sso:GetManagedApplicationInstance",
         ],
         Resource = "*"
       },
